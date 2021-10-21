@@ -13,12 +13,10 @@ mp_hands = mp.solutions.hands
 st.set_page_config(page_title="Visuotactile Body Illusion",layout='centered', page_icon=':leg:')
 st.title("Visuotactile Body Illusion Demo")
 
-
 WEBRTC_CLIENT_SETTINGS = ClientSettings(
     rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
     media_stream_constraints={"video": True, "audio": False},
 )
-
 
 class VideoTransformer(VideoTransformerBase):
     def __init__(self):
@@ -28,8 +26,7 @@ class VideoTransformer(VideoTransformerBase):
         #Tweakables
         self.extra = 10
         self.scale = 1
-        self.annotate = True
-
+        self.annotate = False
 
     def recv(self, frame):
         with mp_hands.Hands(max_num_hands=1,min_detection_confidence=0.5,min_tracking_confidence=0.5) as hands:
@@ -62,6 +59,12 @@ class VideoTransformer(VideoTransformerBase):
                     cv2.rectangle(image,(0,self.top),(image_width, self.top),(255,0,0),3)
         return av.VideoFrame.from_ndarray(image, format="bgr24")
 
+    def set_annotations(self, value):
+        if value == "Yes":
+            self.annotate = True
+        else:
+            self.annotate = False
+
     def expand(self, image, section, scale):
         np_leg = np.array(image)
         original_shape = np_leg.shape
@@ -85,4 +88,9 @@ class VideoTransformer(VideoTransformerBase):
         upward = landmarks[20].y < landmarks[4].y  and landmarks[12].y  < landmarks[20].y
         return sum([thumb, index, middle, ring, pinky]) == 5 and upward
 
-webrtc_streamer(key="example", video_processor_factory=VideoTransformer, client_settings=WEBRTC_CLIENT_SETTINGS)
+site = webrtc_streamer(key="example", video_processor_factory=VideoTransformer, client_settings=WEBRTC_CLIENT_SETTINGS)
+
+if site.video_processor:
+    #Side Bar
+    st.sidebar.header("Customize the Settings!")
+    site.video_processor.set_annotations(st.sidebar.radio("Show annotations?", ["Yes","No"]))
