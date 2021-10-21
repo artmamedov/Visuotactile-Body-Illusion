@@ -1,5 +1,5 @@
 import streamlit as st
-from streamlit_webrtc import VideoTransformerBase, webrtc_streamer
+from streamlit_webrtc import VideoTransformerBase, webrtc_streamer, ClientSettings
 import av
 import cv2
 import mediapipe as mp
@@ -9,10 +9,16 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_hands = mp.solutions.hands
 
-
 #Page Setup
 st.set_page_config(page_title="Visuotactile Body Illusion",layout='centered', page_icon=':leg:')
 st.title("Visuotactile Body Illusion Demo")
+
+
+WEBRTC_CLIENT_SETTINGS = ClientSettings(
+    rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
+    media_stream_constraints={"video": True, "audio": False},
+)
+
 
 class VideoTransformer(VideoTransformerBase):
     def __init__(self):
@@ -79,4 +85,4 @@ class VideoTransformer(VideoTransformerBase):
         upward = landmarks[20].y < landmarks[4].y  and landmarks[12].y  < landmarks[20].y
         return sum([thumb, index, middle, ring, pinky]) == 5 and upward
 
-webrtc_streamer(key="example", video_processor_factory=VideoTransformer)
+webrtc_streamer(key="example", video_processor_factory=VideoTransformer, client_settings=WEBRTC_CLIENT_SETTINGS)
