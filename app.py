@@ -1,5 +1,6 @@
 import streamlit as st
 from streamlit_webrtc import VideoTransformerBase, webrtc_streamer
+import av
 import cv2
 import mediapipe as mp
 import numpy as np
@@ -24,7 +25,7 @@ class VideoTransformer(VideoTransformerBase):
         self.annotate = True
 
 
-    def transform(self, frame):
+    def recv(self, frame):
         with mp_hands.Hands(max_num_hands=1,min_detection_confidence=0.5,min_tracking_confidence=0.5) as hands:
             image = frame.to_ndarray(format="bgr24")
             image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
@@ -53,7 +54,7 @@ class VideoTransformer(VideoTransformerBase):
                     image = self.expand(image,(self.bottom-(section-j)*self.scale*2),self.scale)
                 if self.annotate:
                     cv2.rectangle(image,(0,self.top),(image_width, self.top),(255,0,0),3)
-        return image
+        return av.VideoFrame.from_ndarray(image, format="bgr24")
 
     def expand(self, image, section, scale):
         np_leg = np.array(image)
