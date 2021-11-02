@@ -64,11 +64,11 @@ class VideoTransformer(VideoTransformerBase):
                                          landmarks[16].x, landmarks[20].x)*image_width/self.horizontal_scale)
                         endx   = int(max(landmarks[4].x, landmarks[8].x, landmarks[12].x,
                                          landmarks[16].x, landmarks[20].x)*image_width*self.horizontal_scale)
-            section = self.bottom-self.top
-            for j in range(int(section*self.scale)):
-                image = self.expand(image,(self.bottom-(section-j)*2), startx, endx)
-            if self.annotate:
-                cv2.rectangle(image,(0,self.top),(image_width, self.top),(255,0,0),3)
+                section = self.bottom-self.top
+                for j in range(int(section*self.scale)):
+                    image = self.expand(image,(self.bottom-(section-j)*2), startx, endx)
+                if self.annotate:
+                    cv2.rectangle(image,(0,self.top),(image_width, self.top),(255,0,0),3)
         return av.VideoFrame.from_ndarray(image, format="bgr24")
 
     def set_annotations(self, value):
