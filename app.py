@@ -91,9 +91,9 @@ class VideoTransformer(VideoTransformerBase):
                             image =self. expand_horizontal(image,int((side_end-(section+j)*2)), smooth_starty, smooth_endy)
                 if self.annotate:
                     if self.direction == "Vertical":
-                        cv2.rectangle(image,(0,self.top),(video_width, self.top),(255,0,0),3)
+                        cv2.rectangle(image,(0,self.top),(image_width, self.top),(255,0,0),3)
                     elif self.direction == "Horizontal":
-                        cv2.rectangle(image,(vert,0),(vert,video_height),(255,0,0),3)
+                        cv2.rectangle(image,(vert,0),(vert,image_height),(255,0,0),3)
 
         return av.VideoFrame.from_ndarray(image, format="bgr24")
 
