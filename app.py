@@ -21,7 +21,9 @@ WEBRTC_CLIENT_SETTINGS = ClientSettings(
 class VideoTransformer(VideoTransformerBase):
     def __init__(self):
         self.top = 200
+        self.vert = 0
         self.bottom = 0
+        self.side_end = 0
         self.running = False
         #Tweakables
         self.annotate = False
@@ -50,7 +52,7 @@ class VideoTransformer(VideoTransformerBase):
                         mp_drawing.draw_landmarks(image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
                     landmarks = hand_landmarks.landmark
                     self.bottom = int(min(landmarks[8].y, landmarks[4].y)*image_height + self.extra//2*self.scale)
-                    side_end = int(min(landmarks[8].x, landmarks[4].x)*image_height + self.extra//2*self.scale)
+                    self.side_end = int(min(landmarks[8].x, landmarks[4].x)*image_height + self.extra//2*self.scale)
 
                     if not self.running and self.check_thumbs_up(landmarks):
                         self.running = True
@@ -58,7 +60,7 @@ class VideoTransformer(VideoTransformerBase):
                             self.top = int(min([landmarks[8].y, landmarks[7].y, landmarks[6].y, landmarks[5].y])\
                                                   *image_height - self.extra//2*self.scale)
                         if self.direction == "Horizontal":
-                            vert = int(min([landmarks[8].x, landmarks[7].x, landmarks[6].x, landmarks[5].x])\
+                            self.vert = int(min([landmarks[8].x, landmarks[7].x, landmarks[6].x, landmarks[5].x])\
                                                   *image_width - self.extra//2*self.scale)
                     elif self.check_two(landmarks):
                         self.running = False
@@ -84,16 +86,16 @@ class VideoTransformer(VideoTransformerBase):
                             smooth_endx   = int(endx-j//(self.smoothing_factor/10))
                             image = self.expand_vertical(image,int((self.bottom-(section-j)*2)), smooth_startx, smooth_endx)
                     elif self.direction == "Horizontal":
-                        section = side_end-vert
+                        section = self.side_end-self.vert
                         for j in range(int(section*self.scale)):
                             smooth_starty = int(starty-j//(self.smoothing_factor/10))
                             smooth_endy   = int(endy-j//(self.smoothing_factor/10))
-                            image =self. expand_horizontal(image,int((side_end-(section+j)*2)), smooth_starty, smooth_endy)
+                            image =self. expand_horizontal(image,int((self.side_end-(section+j)*2)), smooth_starty, smooth_endy)
                 if self.annotate:
                     if self.direction == "Vertical":
                         cv2.rectangle(image,(0,self.top),(image_width, self.top),(255,0,0),3)
                     elif self.direction == "Horizontal":
-                        cv2.rectangle(image,(vert,0),(vert,image_height),(255,0,0),3)
+                        cv2.rectangle(image,(self.vert,0),(self.vert,image_height),(255,0,0),3)
 
         return av.VideoFrame.from_ndarray(image, format="bgr24")
 
