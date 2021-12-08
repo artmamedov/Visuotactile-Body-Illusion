@@ -60,7 +60,7 @@ class VideoTransformer(VideoTransformerBase):
                         if self.direction == "Horizontal":
                             vert = int(min([landmarks[8].x, landmarks[7].x, landmarks[6].x, landmarks[5].x])\
                                                   *image_width - self.extra//2*self.scale)
-                    elif check_two(landmarks):
+                    elif self.check_two(landmarks):
                         self.running = False
                         self.top = 0
 
